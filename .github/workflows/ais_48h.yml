@@ -40,8 +40,8 @@ jobs:
           path: data_marseille_*.csv
           retention-days: 30
 
-      - name: Relance du bloc suivant (si < 8)
-        if: ${{ fromJSON(github.event.inputs.run_number || '1') < 8 }}
+      - name: Relance du bloc suivant (si < 2)
+        if: ${{ fromJSON(github.event.inputs.run_number || '1') < 2 }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
