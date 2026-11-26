@@ -10,7 +10,7 @@ import websockets
 # --- CONFIGURATION ---
 API_KEY = os.getenv("AISSTREAM_API_KEY", "").strip()
 RUN_NUMBER = os.getenv("RUN_NUMBER", "1")
-DURATION_SECONDS = 600  # 5h40 (marge de sécurité sous la limite de 6h)
+DURATION_SECONDS = 20400  # 5h40 (marge de sécurité sous la limite de 6h)
 OUTPUT_FILE = f"data_marseille_bloc_{RUN_NUMBER}.csv"
 
 # Zone englobant Fos-sur-Mer (Bassins Ouest) et Marseille (Bassins Est)
