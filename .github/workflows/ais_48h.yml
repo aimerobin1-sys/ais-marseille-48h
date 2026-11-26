@@ -1,0 +1,49 @@
+name: Acquisition AIS Marseille 48h
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_number:
+        description: 'Numéro du bloc (1 à 8)'
+        required: true
+        default: '1'
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Installation Python et dépendances
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install websockets aiohttp requests pandas
+
+      - name: Acquisition AIS (5h40)
+        env:
+          AISSTREAM_API_KEY: ${{ secrets.AISSTREAM_API_KEY }}
+          RUN_NUMBER: ${{ github.event.inputs.run_number || '1' }}
+        run: python collect_ais.py
+
+      - name: Sauvegarde des données (Artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ais-marseille-bloc-${{ github.event.inputs.run_number || '1' }}
+          path: data_marseille_*.csv
+          retention-days: 30
+
+      - name: Relance du bloc suivant (si < 8)
+        if: ${{ fromJSON(github.event.inputs.run_number || '1') < 8 }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEXT_RUN=$(( ${{ github.event.inputs.run_number || '1' }} + 1 ))
+          gh workflow run ais_48h.yml -f run_number=$NEXT_RUN
